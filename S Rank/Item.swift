@@ -7,12 +7,27 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 @Model
-final class Item {
-  var timestamp: Date
+class Item: Identifiable {
+  var name: String
+  var items: [Item]? = nil
   
-  init(timestamp: Date) {
-    self.timestamp = timestamp
+  init(name: String) {
+    self.name = name
+  }
+  
+  init(name: String, items: [Item]) {
+    self.name = name
+    self.items = items
+  }
+}
+
+struct BaseItemView: View {
+  var text: String
+  
+  var body: some View {
+    Text(text)
   }
 }
