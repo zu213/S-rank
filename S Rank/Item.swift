@@ -24,10 +24,23 @@ class Item: Identifiable {
   }
 }
 
-struct BaseItemView: View {
+struct InlineItemView: View {
   var text: String
+  var convertToList: (() -> Void)?
   
   var body: some View {
-    Text(text)
+    HStack {
+      Text(text)
+      
+      if let convertToList {
+        Button(action: {
+          convertToList()
+        }) {
+          Image(systemName: "chevron.right")
+        }
+      } else {
+        Image(systemName: "chevron.left")
+      }
+    }
   }
 }
