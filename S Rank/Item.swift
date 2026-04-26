@@ -25,21 +25,22 @@ class Item: Identifiable {
 }
 
 struct InlineItemView: View {
-  var text: String
-  var convertToList: (() -> Void)?
+  var item: Item
   
   var body: some View {
     HStack {
-      Text(text)
+      NavigationLink {
+        ListItemView(name: item.name, items: item.items ?? [])
+      } label: {
+        Text(item.name)
+      }
       
-      if let convertToList {
+      if item.items == nil {
         Button(action: {
-          convertToList()
+          item.items = []
         }) {
           Image(systemName: "chevron.right")
         }
-      } else {
-        Image(systemName: "chevron.left")
       }
     }
   }

@@ -19,48 +19,35 @@ struct ListItemView: View {
     NavigationSplitView {
       List {
         ForEach(items) { item in
-          if item.items == nil {
-            NavigationLink {
-              Text("Item at")
-            } label: {
-              InlineItemView(text: item.name) {
-                item.items = []
-              }
-            }
-          } else {
-            NavigationLink {
-              Text("Item at")
-            } label: {
-              InlineItemView(text: item.name, convertToList: nil)
+          InlineItemView(text: item) {
+          }
+          .onDelete(perform: deleteItems)
+        }
+        .toolbar {
+          ToolbarItem(placement: .navigationBarTrailing) {
+            EditButton()
+          }
+          ToolbarItem {
+            Button(action: {
+              showingConfirmation = true
+            })
+            {
+              Label("Add Item", systemImage: "plus")
             }
           }
         }
-        .onDelete(perform: deleteItems)
+      } detail: {
+        Text("Select an item")
       }
-      .toolbar {
-        ToolbarItem(placement: .navigationBarTrailing) {
-          EditButton()
-        }
-        ToolbarItem {
-          Button(action: {
-            showingConfirmation = true
-          })
-          {
-            Label("Add Item", systemImage: "plus")
-          }
-        }
-      }
-    } detail: {
-      Text("Select an item")
-    }
-    .alert("Create Item", isPresented: $showingConfirmation) {
+      .alert("Create Item", isPresented: $showingConfirmation) {
         TextField("Enter your item", text: $newItemName)
         Button("Confirm") {
           addItem()
         }
         Button("Cancel", role: .cancel) { }
-    } message: {
+      } message: {
         Text("Input item name")
+      }
     }
   }
   
