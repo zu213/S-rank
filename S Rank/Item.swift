@@ -12,12 +12,14 @@ import SwiftUI
 @Model
 class Item: Identifiable {
   var name: String
-  var items: [Item]? = nil
-  
+  var items: [Item]
+  @Relationship(inverse: \Item.items) var parent: Item?
+
   init(name: String) {
     self.name = name
+    self.items = []
   }
-  
+
   init(name: String, items: [Item]) {
     self.name = name
     self.items = items
@@ -26,22 +28,12 @@ class Item: Identifiable {
 
 struct InlineItemView: View {
   var item: Item
-  
+
   var body: some View {
-    HStack {
-      NavigationLink {
-        ListItemView(name: item.name, items: item.items ?? [])
-      } label: {
-        Text(item.name)
-      }
-      
-      if item.items == nil {
-        Button(action: {
-          item.items = []
-        }) {
-          Image(systemName: "chevron.right")
-        }
-      }
+    NavigationLink {
+      ListItemView(item: item)
+    } label: {
+      Text(item.name)
     }
   }
 }
