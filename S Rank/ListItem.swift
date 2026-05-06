@@ -18,13 +18,18 @@ struct ListItemView: View {
   var body: some View {
     Group {
       if item.items.isEmpty {
-        Text("Empty")
+        VStack {
+          Text("\(item.name)")
+            .font(.headline)
+          Text("To convert this to a list simply add items")
+        }
       } else {
         List {
-          ForEach(item.items) { child in
-            InlineItemView(item: child)
+          ForEach(Array(item.items.sorted(by: { $0.order < $1.order }).enumerated()), id: \.element.id) { index, child in
+            InlineItemView(item: child, index: index)
           }
           .onDelete(perform: deleteItems)
+          .onMove(perform: moveItems)
         }
       }
     }
@@ -48,15 +53,22 @@ struct ListItemView: View {
       }
       Button("Cancel", role: .cancel) { }
     } message: {
-      Text("Input item name")
+      Text("Enter your new item or ranking name")
     }
   }
 
   private func addItem() {
-    let newItem = Item(name: newItemName)
+    let newItem = Item(name: newItemName, order: item.items.count)
     newItemName = ""
     modelContext.insert(newItem)
     item.items.append(newItem)
+  }
+
+  private func moveItems(from source: IndexSet, to destination: Int) {
+    item.items.move(fromOffsets: source, toOffset: destination)
+    for (index, child) in item.items.enumerated() {
+      child.order = index
+    }
   }
 
   private func deleteItems(offsets: IndexSet) {

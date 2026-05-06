@@ -12,28 +12,35 @@ import SwiftUI
 @Model
 class Item: Identifiable {
   var name: String
+  var order: Int
   var items: [Item]
   @Relationship(inverse: \Item.items) var parent: Item?
 
-  init(name: String) {
+  init(name: String, order: Int = 0) {
     self.name = name
+    self.order = order
     self.items = []
   }
 
-  init(name: String, items: [Item]) {
+  init(name: String, order: Int = 0, items: [Item]) {
     self.name = name
+    self.order = order
     self.items = items
   }
 }
 
 struct InlineItemView: View {
   var item: Item
-
+  var index: Int
+  
   var body: some View {
-    NavigationLink {
-      ListItemView(item: item)
-    } label: {
-      Text(item.name)
+    HStack {
+      Text("\(index)")
+      NavigationLink {
+        ListItemView(item: item)
+      } label: {
+        Text(item.name)
+      }
     }
   }
 }

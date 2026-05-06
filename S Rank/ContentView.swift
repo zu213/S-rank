@@ -10,20 +10,31 @@ import SwiftData
 
 struct ContentView: View {
   @Environment(\.modelContext) private var modelContext
-  @Query(filter: #Predicate<Item> { $0.parent == nil }) private var items: [Item]
-    
+  @Query(filter: #Predicate<Item> { $0.parent == nil }, sort: \.order) private var items: [Item]
+
   @State private var showingConfirmation = false
   @State private var newItemName: String = ""
-  
+  @State private var orderedItems: [Item] = []
+
   var body: some View {
     NavigationStack {
       List {
-        ForEach(items) { item in
-          InlineItemView(item: item)
+        ForEach(Array(orderedItems.enumerated()), id: \.element.id) { index, item in
+          InlineItemView(item: item, index: index)
         }
         .onDelete(perform: deleteItems)
+        .onMove(perform: moveItems)
       }
-      .navigationTitle("Base folder")
+      .onChange(of: items) { _, newValue in
+        // Only reset order when items are added/removed, not on every change
+        if newValue.count != orderedItems.count {
+          orderedItems = newValue
+        }
+      }
+      .onAppear {
+        orderedItems = items
+      }
+      .navigationTitle("Base Ranking")
       .toolbar {
         ToolbarItem(placement: .navigationBarTrailing) {
           EditButton()
@@ -45,28 +56,30 @@ struct ContentView: View {
       }
       Button("Cancel", role: .cancel) { }
     } message: {
-      Text("Input item name")
+      Text("Enter your new item or ranking name")
     }
   }
   
   
   private func addItem() {
-    let item2 = Item(name: newItemName)
+    let item = Item(name: newItemName, order: orderedItems.count)
     newItemName = ""
-    modelContext.insert(item2)
+    modelContext.insert(item)
+    orderedItems.append(item)
   }
-  
-  
-  private func deleteItems(offsets: IndexSet) {
-    withAnimation {
-      for index in offsets {
-        //modelContext.delete(items[index])
-      }
+
+  private func moveItems(from source: IndexSet, to destination: Int) {
+    orderedItems.move(fromOffsets: source, toOffset: destination)
+    for (index, item) in orderedItems.enumerated() {
+      item.order = index
     }
   }
-  
-  func addItem(item: Item) {
-    modelContext.insert(item)
+
+  private func deleteItems(offsets: IndexSet) {
+    for index in offsets {
+      modelContext.delete(orderedItems[index])
+    }
+    orderedItems.remove(atOffsets: offsets)
   }
 }
 
