@@ -29,18 +29,34 @@ class Item: Identifiable {
   }
 }
 
+// MARK: - Inline row view
+
 struct InlineItemView: View {
   var item: Item
   var index: Int
-  
+
   var body: some View {
-    HStack {
-      Text("\(index)")
-      NavigationLink {
-        ListItemView(item: item)
-      } label: {
-        Text(item.name)
+    NavigationLink {
+      ListItemView(item: item)
+    } label: {
+      HStack(spacing: 12) {
+        RankBadge(index: index)
+
+        VStack(alignment: .leading, spacing: 2) {
+          Text(item.name)
+            .font(.system(size: 16, weight: .medium, design: .rounded))
+            .foregroundStyle(Color.primary)
+
+          if !item.items.isEmpty {
+            Text("\(item.items.count) \(item.items.count == 1 ? "item" : "items")")
+              .font(.system(size: 12, weight: .regular, design: .rounded))
+              .foregroundStyle(Color.secondary)
+          }
+        }
+
+        Spacer()
       }
+      .padding(.vertical, 6)
     }
   }
 }
